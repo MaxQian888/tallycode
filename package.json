@@ -8,6 +8,7 @@
   "packageManager": "pnpm@10.26.2",
   "description": "Count code lines per language with source/test split, diff vs baseline, and beautiful dashboard exports.",
   "license": "MIT",
+  "homepage": "https://github.com/MaxQian888/tallycode#readme",
   "repository": {
     "type": "git",
     "url": "https://github.com/MaxQian888/tallycode.git"
@@ -15,7 +16,6 @@
   "bugs": {
     "url": "https://github.com/MaxQian888/tallycode/issues"
   },
-  "homepage": "https://github.com/MaxQian888/tallycode#readme",
   "keywords": [
     "code count",
     "line counter",
