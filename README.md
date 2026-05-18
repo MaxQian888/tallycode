@@ -61,10 +61,12 @@ Every setting lives under `tallycode.*`:
 ### Customizing test detection
 
 ```jsonc
-"tallycode.testRules": {
-  "default": { "useLsp": true, "filenameGlobs": ["**/*.{test,spec}.*"], "directoryGlobs": ["**/__tests__/**"] },
-  "perLanguage": {
-    "python": { "filenameGlobs": ["**/check_*.py"] }
+{
+  "tallycode.testRules": {
+    "default": { "useLsp": true, "filenameGlobs": ["**/*.{test,spec}.*"], "directoryGlobs": ["**/__tests__/**"] },
+    "perLanguage": {
+      "python": { "filenameGlobs": ["**/check_*.py"] }
+    }
   }
 }
 ```
@@ -72,13 +74,15 @@ Every setting lives under `tallycode.*`:
 ### Adding a language
 
 ```jsonc
-"tallycode.languages": {
-  "nim": {
-    "id": "nim",
-    "extensions": [".nim"],
-    "lineComments": ["#"],
-    "blockComments": [["#[", "]#"]],
-    "nestedBlockComment": true
+{
+  "tallycode.languages": {
+    "nim": {
+      "id": "nim",
+      "extensions": [".nim"],
+      "lineComments": ["#"],
+      "blockComments": [["#[", "]#"]],
+      "nestedBlockComment": true
+    }
   }
 }
 ```

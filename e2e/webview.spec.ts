@@ -1,140 +1,94 @@
 import { expect, test } from '@playwright/test';
 
-test.describe('Webview UI', () => {
+test.describe('TallyCode Dashboard', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
   });
 
-  test('should display the main title', async ({ page }) => {
-    await expect(page.getByText('VSCode Extension Starter')).toBeVisible();
+  test('shows the TallyCode header', async ({ page }) => {
+    await expect(page.getByRole('heading', { name: 'TallyCode', level: 1 })).toBeVisible();
   });
 
-  test('should display the subtitle', async ({ page }) => {
-    await expect(page.getByText('React + shadcn/ui + Tailwind CSS')).toBeVisible();
+  test('renders the empty-state prompt before a scan', async ({ page }) => {
+    await expect(page.getByRole('heading', { name: 'Run your first scan' })).toBeVisible();
+    await expect(
+      page.getByText('Count every code, comment, and blank line in this workspace.'),
+    ).toBeVisible();
   });
 
-  test('should display version badge', async ({ page }) => {
-    await expect(page.getByText('v0.0.1')).toBeVisible();
+  test('exposes the primary scan button', async ({ page }) => {
+    const scanButtons = page.getByRole('button', { name: /scan workspace/i });
+    await expect(scanButtons.first()).toBeVisible();
+    await expect(scanButtons.first()).toBeEnabled();
   });
 
-  test('should display message card', async ({ page }) => {
-    await expect(page.getByText('Message', { exact: true })).toBeVisible();
-    await expect(page.getByText('Send a typed message to the VSCode extension')).toBeVisible();
-  });
-
-  test('should display state management card', async ({ page }) => {
-    await expect(page.getByText('State Management')).toBeVisible();
-    await expect(page.getByText('Persist state across webview sessions')).toBeVisible();
+  test('disables baseline + export actions until a report exists', async ({ page }) => {
+    await expect(page.getByRole('button', { name: /save baseline/i })).toBeDisabled();
+    await expect(page.getByRole('button', { name: /^export$/i })).toBeDisabled();
   });
 });
 
-test.describe('Message Interaction', () => {
-  test.beforeEach(async ({ page }) => {
+test.describe('Scan workflow (mocked)', () => {
+  test('renders the report after a synthetic scan/done message', async ({ page }) => {
     await page.goto('/');
-  });
 
-  test('should update message input value', async ({ page }) => {
-    const input = page.getByPlaceholder('Enter message...');
-    await input.fill('Hello World');
-    await expect(input).toHaveValue('Hello World');
-  });
+    // Inject a small fake Report matching shared/report.ts schema.
+    await page.evaluate(() => {
+      const report = {
+        schemaVersion: 1,
+        rootPath: '/r',
+        scope: '',
+        scannedAt: new Date().toISOString(),
+        durationMs: 42,
+        summary: {
+          totalFiles: 2,
+          testFiles: 1,
+          sourceFiles: 1,
+          total: { code: 30, comment: 5, blank: 5, total: 40 },
+          source: { code: 20, comment: 3, blank: 2, total: 25 },
+          test: { code: 10, comment: 2, blank: 3, total: 15 },
+          languageCount: 1,
+        },
+        languages: [{
+          language: 'typescript',
+          files: 2,
+          testFiles: 1,
+          source: { code: 20, comment: 3, blank: 2, total: 25 },
+          test: { code: 10, comment: 2, blank: 3, total: 15 },
+          total: { code: 30, comment: 5, blank: 5, total: 40 },
+        }],
+        directoryTree: {
+          path: '',
+          name: '',
+          files: 2,
+          testFiles: 1,
+          source: { code: 20, comment: 3, blank: 2, total: 25 },
+          test: { code: 10, comment: 2, blank: 3, total: 15 },
+          total: { code: 30, comment: 5, blank: 5, total: 40 },
+          children: [],
+        },
+        files: [
+          { path: 'src/a.ts', language: 'typescript', size: 100, isTest: false, testReason: 'none', count: { code: 20, comment: 3, blank: 2, total: 25 } },
+          { path: 'src/a.test.ts', language: 'typescript', size: 50, isTest: true, testReason: 'filename', count: { code: 10, comment: 2, blank: 3, total: 15 } },
+        ],
+        skipped: [],
+      };
+      window.dispatchEvent(new MessageEvent('message', { data: { type: 'scan/done', report } }));
+    });
 
-  test('should show message preview when typing', async ({ page }) => {
-    const input = page.getByPlaceholder('Enter message...');
-    await input.fill('Test message');
-    await expect(page.getByText('Preview: Test message')).toBeVisible();
-  });
-
-  test('should have send message button', async ({ page }) => {
-    const button = page.getByRole('button', { name: /send message/i });
-    await expect(button).toBeVisible();
-    await expect(button).toBeEnabled();
-  });
-
-  test('should be able to click send message button', async ({ page }) => {
-    const input = page.getByPlaceholder('Enter message...');
-    await input.fill('Hello');
-
-    const button = page.getByRole('button', { name: /send message/i });
-    await button.click();
-    // Button should still be enabled after click
-    await expect(button).toBeEnabled();
-  });
-});
-
-test.describe('State Management Interaction', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-  });
-
-  test('should update state input value', async ({ page }) => {
-    const input = page.getByPlaceholder('Enter state...');
-    await input.fill('my-state');
-    await expect(input).toHaveValue('my-state');
-  });
-
-  test('should show state preview when typing', async ({ page }) => {
-    const input = page.getByPlaceholder('Enter state...');
-    await input.fill('current-state');
-    await expect(page.getByText('Current: current-state')).toBeVisible();
-  });
-
-  test('should have save and load state buttons', async ({ page }) => {
-    const saveButton = page.getByRole('button', { name: /save state/i });
-    const loadButton = page.getByRole('button', { name: /load state/i });
-
-    await expect(saveButton).toBeVisible();
-    await expect(loadButton).toBeVisible();
-  });
-
-  test('should be able to click save state button', async ({ page }) => {
-    const input = page.getByPlaceholder('Enter state...');
-    await input.fill('test-state');
-
-    const saveButton = page.getByRole('button', { name: /save state/i });
-    await saveButton.click();
-    await expect(saveButton).toBeEnabled();
+    await expect(page.getByRole('tab', { name: /by language/i })).toBeVisible();
+    await expect(page.getByRole('tab', { name: /directory tree/i })).toBeVisible();
+    await expect(page.getByRole('tab', { name: /^files$/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /save baseline/i })).toBeEnabled();
+    await expect(page.getByRole('button', { name: /^export$/i })).toBeEnabled();
   });
 });
 
 test.describe('Responsive Layout', () => {
-  test('should display cards in grid layout on desktop', async ({ page }) => {
-    await page.setViewportSize({ width: 1200, height: 800 });
-    await page.goto('/');
-
-    const messageCard = page.getByText('Message').first();
-    const stateCard = page.getByText('State Management').first();
-
-    await expect(messageCard).toBeVisible();
-    await expect(stateCard).toBeVisible();
-  });
-
-  test('should be usable on mobile viewport', async ({ page }) => {
+  test('remains usable on a narrow viewport', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/');
-
-    await expect(page.getByText('VSCode Extension Starter')).toBeVisible();
-    await expect(page.getByPlaceholder('Enter message...')).toBeVisible();
-  });
-});
-
-test.describe('Accessibility', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-  });
-
-  test('should have proper form labels', async ({ page }) => {
-    await expect(page.getByLabel('Message content')).toBeVisible();
-    await expect(page.getByLabel('State value')).toBeVisible();
-  });
-
-  test('should be keyboard navigable', async ({ page }) => {
-    const messageInput = page.getByPlaceholder('Enter message...');
-    await messageInput.focus();
-    await expect(messageInput).toBeFocused();
-
-    await page.keyboard.press('Tab');
-    const sendButton = page.getByRole('button', { name: /send message/i });
-    await expect(sendButton).toBeFocused();
+    await expect(page.getByRole('heading', { name: 'TallyCode', level: 1 })).toBeVisible();
+    await expect(page.getByRole('button', { name: /scan workspace/i }).first()).toBeVisible();
   });
 });
