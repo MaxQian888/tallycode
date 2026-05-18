@@ -34,6 +34,7 @@ const handlers: HandlerMap = {
     const report = controller.getLastReport();
     if (report) {
       void controller.ensurePanel().post({ type: 'scan/done', report });
+      void controller.postIconPayload(report);
     }
     const baseline = controller.getBaseline();
     if (baseline) {

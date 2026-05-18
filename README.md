@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/icon.png" alt="TallyCode" width="160" />
+</p>
+
 # TallyCode — Code Line Counter for VSCode
 
 Count code lines per language across your workspace, **with first-class source / test split**, diff against a saved baseline, and a real dashboard you can export as PNG, HTML, Markdown, CSV, or JSON.

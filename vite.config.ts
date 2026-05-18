@@ -14,6 +14,20 @@ export default defineConfig({
       extension: {
         sourcemap: 'inline',
       },
+      // The plugin owns the production HTML (CSP meta + nonce + {{baseUri}}-rewritten
+      // <script>/<link>). The `csp` value is inserted verbatim with
+      // `insertAdjacentHTML('afterbegin', csp)`, so it MUST be the full <meta>
+      // element — passing just directives renders them as visible text in <head>.
+      webview: {
+        csp: `<meta http-equiv="Content-Security-Policy" content="${[
+          'default-src \'none\'',
+          'img-src {{cspSource}} https: data: blob:',
+          'style-src {{cspSource}} \'unsafe-inline\'',
+          'script-src \'nonce-{{nonce}}\' \'unsafe-eval\'',
+          'font-src {{cspSource}} data:',
+          'connect-src {{cspSource}}',
+        ].join('; ')}">`,
+      },
     }),
   ],
 });

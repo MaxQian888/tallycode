@@ -2,8 +2,15 @@ import { useEffect, useState } from 'react';
 
 import { useVscodeMessage } from './useVscodeMessage';
 
-import type { ScanScope } from '@shared/messages';
+import type { IconThemePayload, ScanScope } from '@shared/messages';
 import type { DiffReport, Report, TallyCodeConfig } from '@shared/report';
+
+const EMPTY_ICON_THEME: IconThemePayload = {
+  active: false,
+  icons: {},
+  fileIcons: {},
+  folderIcons: {},
+};
 
 export interface ScanProgress {
   processed: number;
@@ -26,6 +33,8 @@ export interface ReportState {
   staleCount: number;
   /** Scope of the most recent successful scan (so the Refresh button can re-trigger). */
   lastScan: LastScan | null;
+  /** Icons resolved from the user's active VSCode icon theme. */
+  iconTheme: IconThemePayload;
 }
 
 const INITIAL: ReportState = {
@@ -37,6 +46,7 @@ const INITIAL: ReportState = {
   error: null,
   staleCount: 0,
   lastScan: null,
+  iconTheme: EMPTY_ICON_THEME,
 };
 
 /**
@@ -83,6 +93,10 @@ export function useReport(): ReportState {
 
   useVscodeMessage('config/changed', (m) => {
     setState(s => ({ ...s, config: m.config }));
+  });
+
+  useVscodeMessage('iconTheme/icons', (m) => {
+    setState(s => ({ ...s, iconTheme: m.payload }));
   });
 
   // Reset progress to null if we already have a report and no progress event

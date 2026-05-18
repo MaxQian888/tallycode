@@ -3,6 +3,25 @@ import type { DiffReport, Report, TallyCodeConfig } from './report';
 export type ScanScope = 'workspace' | 'folder' | 'file';
 export type ExportFormat = 'md' | 'csv' | 'json' | 'html';
 
+/**
+ * Icons resolved from the user's active VSCode file-icon theme. The extension
+ * reads the theme JSON, picks the right icon id for every path in the current
+ * report, and inlines the SVG/PNG contents as base64 data URIs so the webview
+ * can render them with `<img src={dataUri}>` without extra CSP allowlisting.
+ *
+ * `active: false` means the user has no icon theme set or it couldn't be
+ * loaded — the webview falls back to generic lucide File/Folder icons.
+ */
+export interface IconThemePayload {
+  active: boolean;
+  /** iconId -> data: URI for the icon file. */
+  icons: Record<string, string>;
+  /** Relative file path -> iconId. Resolution already includes the theme's default. */
+  fileIcons: Record<string, string>;
+  /** Relative directory path -> {closed, open} iconIds. */
+  folderIcons: Record<string, { closed: string; open: string }>;
+}
+
 export type WebviewToExtensionMessage
   = | { type: 'hello'; data: string }
     | { type: 'log'; level: 'info' | 'warn' | 'error'; message: string }
@@ -30,6 +49,7 @@ export type ExtensionToWebviewMessage
     | { type: 'config/changed'; config: TallyCodeConfig }
     | { type: 'export/saved'; path: string; format: ExportFormat | 'png' }
     | { type: 'scan/stale'; changedCount: number }
-    | { type: 'view/highlight'; target: HighlightTarget; payload?: { languageId?: string } };
+    | { type: 'view/highlight'; target: HighlightTarget; payload?: { languageId?: string } }
+    | { type: 'iconTheme/icons'; payload: IconThemePayload };
 
 export type MessageOf<T extends string, M extends { type: string }> = Extract<M, { type: T }>;

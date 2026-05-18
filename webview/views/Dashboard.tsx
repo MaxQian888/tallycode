@@ -208,7 +208,7 @@ export function Dashboard() {
               </div>
             </TabsContent>
             <TabsContent value="directories" className="mt-3">
-              <DirectoryTree report={state.report} />
+              <DirectoryTree report={state.report} iconTheme={state.iconTheme} />
             </TabsContent>
             <TabsContent value="files" className="mt-3">
               <FileTable report={state.report} />

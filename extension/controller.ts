@@ -6,6 +6,8 @@ import { onConfigChanged, readConfig } from './config';
 import { BUILTIN_LANGUAGES } from './counter/languageDefs';
 import { LanguageRegistry, mergeLanguageRules } from './counter/languageRegistry';
 import { DEFAULT_TEST_RULES, TestClassifier } from './counter/testClassifier';
+import { buildIconPayload } from './iconTheme/iconBundler';
+import { loadActiveIconTheme } from './iconTheme/themeLoader';
 import { logger } from './logger';
 import { buildReport } from './report/aggregator';
 import { buildDiff } from './report/diff';
@@ -17,6 +19,7 @@ import { RecentScansStore } from './state/recentScans';
 import { MainPanel } from './views/panel';
 import { StatusBar } from './views/statusBar';
 
+import type { ResolvedIconTheme } from './iconTheme/themeResolver';
 import type { ScanScope } from '@shared/messages';
 import type { FileEntry, Report, SkippedFile, TallyCodeConfig } from '@shared/report';
 import type { Event, ExtensionContext, WorkspaceFolder } from 'vscode';
@@ -48,6 +51,7 @@ export class TallyCodeController {
   private ruleHash: string;
   private watcher: IncrementalWatcher | undefined;
   private statusBar: StatusBar | undefined;
+  private iconTheme: ResolvedIconTheme | null = null;
   readonly recentScans: RecentScansStore;
   private treeChangeEmitter = new EventEmitter<void>();
   readonly onTreeChanged: Event<void> = this.treeChangeEmitter.event;
@@ -59,6 +63,11 @@ export class TallyCodeController {
     this.ruleHash = this.computeRuleHash();
     context.subscriptions.push(
       onConfigChanged(() => this.refreshConfig()),
+      workspace.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration('workbench.iconTheme'))
+          void this.refreshIconTheme();
+      }),
+      window.onDidChangeActiveColorTheme(() => void this.refreshIconTheme()),
     );
     this.watcher = new IncrementalWatcher(uri => this.toRelative(uri));
     context.subscriptions.push(this.watcher);
@@ -70,6 +79,36 @@ export class TallyCodeController {
     context.subscriptions.push(this.statusBar);
     void this.loadBaseline();
     void this.loadCache();
+    void this.refreshIconTheme();
+  }
+
+  /**
+   * Reload the active VSCode file-icon theme. Triggered on activation and
+   * whenever `workbench.iconTheme` or the active color theme changes (the
+   * latter so light/dark variants apply). If a report is already loaded, the
+   * payload is rebuilt and re-posted so existing icons swap in place.
+   */
+  private async refreshIconTheme(): Promise<void> {
+    try {
+      this.iconTheme = await loadActiveIconTheme();
+    }
+    catch (err) {
+      logger.warn(`icon theme load failed: ${(err as Error).message}`);
+      this.iconTheme = null;
+    }
+    if (this.lastReport)
+      void this.postIconPayload(this.lastReport);
+  }
+
+  /** Build + post the icon payload for the given report. */
+  async postIconPayload(report: Report): Promise<void> {
+    try {
+      const payload = await buildIconPayload(this.iconTheme, report.files, report.directoryTree);
+      MainPanel.currentPanel?.post({ type: 'iconTheme/icons', payload });
+    }
+    catch (err) {
+      logger.warn(`icon bundling failed: ${(err as Error).message}`);
+    }
   }
 
   private toRelative(uri: Uri): string | undefined {
@@ -230,6 +269,7 @@ export class TallyCodeController {
         if (this.baseline) {
           panel.post({ type: 'diff/computed', diff: buildDiff(this.baseline, report) });
         }
+        void this.postIconPayload(report);
         void this.recordRecent(scope, uri, folder);
         logger.info(`single-file scan: ${rel}, ${report.durationMs}ms`);
         return report;
@@ -288,6 +328,7 @@ export class TallyCodeController {
       if (this.baseline) {
         panel.post({ type: 'diff/computed', diff: buildDiff(this.baseline, report) });
       }
+      void this.postIconPayload(report);
       void this.persistCache();
       void this.recordRecent(scope, uri, folder);
       logger.info(
@@ -378,6 +419,7 @@ export class TallyCodeController {
       if (this.baseline) {
         panel.post({ type: 'diff/computed', diff: buildDiff(this.baseline, report) });
       }
+      void this.postIconPayload(report);
       void this.persistCache();
       void this.recentScans.record({
         scope: 'workspace',
