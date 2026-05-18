@@ -7,8 +7,8 @@ import { WebviewHelper } from './helper';
 import type { ExtensionToWebviewMessage } from '@shared/messages';
 import type { Disposable, ExtensionContext, WebviewPanel } from 'vscode';
 
-const VIEW_TYPE = 'showHelloWorld';
-const TITLE = 'Hello World';
+const VIEW_TYPE = 'tallycode.dashboard';
+const TITLE = 'TallyCode Dashboard';
 
 export class MainPanel {
   static currentPanel: MainPanel | undefined;
@@ -22,17 +22,6 @@ export class MainPanel {
     this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
     this._panel.webview.html = WebviewHelper.setupHtml(this._panel.webview, context);
     WebviewHelper.setupHooks(this._panel.webview, context, this._disposables);
-    // Lifecycle handshake — kept in panel.ts to avoid messages.ts ↔ panel.ts circular import.
-    // The router (messages.ts) handles domain messages; the panel handles its own ready signal.
-    this._panel.webview.onDidReceiveMessage(
-      (msg) => {
-        if ((msg as { type?: string }).type === 'webview/ready') {
-          void this.post({ type: 'hello', data: 'Hello World!' });
-        }
-      },
-      null,
-      this._disposables,
-    );
   }
 
   static render(context: ExtensionContext): MainPanel {

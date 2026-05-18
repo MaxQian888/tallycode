@@ -8,8 +8,12 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./webview/__tests__/setup.ts'],
-    include: ['webview/**/*.{test,spec}.{ts,tsx}'],
-    exclude: ['node_modules', 'dist'],
+    include: [
+      'webview/**/*.{test,spec}.{ts,tsx}',
+      'extension/**/*.{test,spec}.ts',
+      'shared/**/*.{test,spec}.ts',
+    ],
+    exclude: ['node_modules', 'dist', '__tests__/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
@@ -17,11 +21,17 @@ export default defineConfig({
         'webview/hooks/**/*.{ts,tsx}',
         'webview/lib/**/*.{ts,tsx}',
         'webview/components/ErrorBoundary.tsx',
+        'extension/counter/**/*.ts',
+        'extension/report/**/*.ts',
+        'extension/scanner/gitignore.ts',
+        'extension/scanner/cache.ts',
       ],
       exclude: [
         'webview/**/*.d.ts',
         'webview/__tests__/**',
         'webview/main.tsx',
+        'extension/**/*.test.ts',
+        'extension/**/__tests__/**',
       ],
       thresholds: {
         statements: 80,

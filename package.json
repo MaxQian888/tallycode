@@ -1,30 +1,24 @@
 {
-  "publisher": "your-publisher",
-  "name": "vscode-extension-quick-starter",
-  "displayName": "VSCode Extension Quick Starter",
+  "publisher": "tallycode",
+  "name": "tallycode",
+  "displayName": "TallyCode — Code Line Counter",
   "type": "commonjs",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@10.26.2",
-  "description": "VSCode extension starter with React + shadcn/ui",
+  "description": "Count code lines per language with source/test split, diff vs baseline, and beautiful dashboard exports.",
   "license": "MIT",
-  "homepage": "https://github.com/AstroAir/vscode-extension-quick-starter#readme",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/AstroAir/vscode-extension-quick-starter.git"
-  },
-  "bugs": {
-    "url": "https://github.com/AstroAir/vscode-extension-quick-starter/issues"
-  },
   "keywords": [
-    "react",
-    "shadcn",
-    "tailwind",
-    "webview",
-    "starter",
-    "template"
+    "code count",
+    "line counter",
+    "cloc",
+    "loc",
+    "metrics",
+    "statistics",
+    "test coverage"
   ],
   "categories": [
+    "Visualization",
     "Other"
   ],
   "main": "dist/extension/index.js",
@@ -41,7 +35,7 @@
   "capabilities": {
     "untrustedWorkspaces": {
       "supported": "limited",
-      "description": "The webview reads no workspace files; safe to enable in untrusted workspaces."
+      "description": "TallyCode reads files in the workspace to count lines. Enable only in workspaces you trust."
     },
     "virtualWorkspaces": true
   },
@@ -49,14 +43,260 @@
     "node": ">=20",
     "vscode": "^1.120.0"
   },
-  "activationEvents": [],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "contributes": {
     "commands": [
       {
-        "command": "hello-world.showHelloWorld",
-        "title": "Hello World: Show"
+        "command": "tallycode.openDashboard",
+        "title": "Open Dashboard",
+        "category": "TallyCode",
+        "icon": "$(graph)"
+      },
+      {
+        "command": "tallycode.countWorkspace",
+        "title": "Count Workspace",
+        "category": "TallyCode",
+        "icon": "$(list-tree)"
+      },
+      {
+        "command": "tallycode.countDirectory",
+        "title": "Count This Folder",
+        "category": "TallyCode",
+        "icon": "$(folder-active)"
+      },
+      {
+        "command": "tallycode.countFile",
+        "title": "Count Current File",
+        "category": "TallyCode",
+        "icon": "$(file-code)"
+      },
+      {
+        "command": "tallycode.saveBaseline",
+        "title": "Save Current Result as Baseline",
+        "category": "TallyCode",
+        "icon": "$(save)"
+      },
+      {
+        "command": "tallycode.clearBaseline",
+        "title": "Clear Baseline",
+        "category": "TallyCode",
+        "icon": "$(clear-all)"
+      },
+      {
+        "command": "tallycode.exportReport",
+        "title": "Export Report…",
+        "category": "TallyCode",
+        "icon": "$(export)"
+      },
+      {
+        "command": "tallycode.statusBarMenu",
+        "title": "Status Bar Menu",
+        "category": "TallyCode",
+        "icon": "$(list-ordered)"
+      },
+      {
+        "command": "tallycode.tree.openHighlight",
+        "title": "Open in Dashboard",
+        "category": "TallyCode"
       }
-    ]
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "tallycodeContainer",
+          "title": "TallyCode",
+          "icon": "assets/sidebar.svg"
+        }
+      ]
+    },
+    "views": {
+      "tallycodeContainer": [
+        {
+          "id": "tallycode.explorer",
+          "name": "Overview",
+          "contextualTitle": "TallyCode",
+          "icon": "assets/sidebar.svg"
+        }
+      ]
+    },
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "tallycode.countDirectory",
+          "when": "explorerResourceIsFolder",
+          "group": "tallycode@1"
+        },
+        {
+          "command": "tallycode.countFile",
+          "when": "!explorerResourceIsFolder",
+          "group": "tallycode@2"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "tallycode.countFile",
+          "group": "navigation@99"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "tallycode.countWorkspace",
+          "when": "view == tallycode.explorer",
+          "group": "navigation@1"
+        },
+        {
+          "command": "tallycode.openDashboard",
+          "when": "view == tallycode.explorer",
+          "group": "navigation@2"
+        },
+        {
+          "command": "tallycode.exportReport",
+          "when": "view == tallycode.explorer",
+          "group": "navigation@3"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "tallycode.saveBaseline",
+          "when": "view == tallycode.explorer && viewItem == tallycode.baseline.empty",
+          "group": "inline"
+        },
+        {
+          "command": "tallycode.clearBaseline",
+          "when": "view == tallycode.explorer && viewItem == tallycode.baseline.info",
+          "group": "inline"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "tallycode.countWorkspace",
+        "key": "ctrl+k ctrl+l",
+        "mac": "cmd+k cmd+l"
+      },
+      {
+        "command": "tallycode.saveBaseline",
+        "key": "ctrl+k ctrl+y",
+        "mac": "cmd+k cmd+y"
+      },
+      {
+        "command": "tallycode.exportReport",
+        "key": "ctrl+k ctrl+e",
+        "mac": "cmd+k cmd+e"
+      },
+      {
+        "command": "tallycode.openDashboard",
+        "key": "ctrl+k ctrl+d",
+        "mac": "cmd+k cmd+d"
+      }
+    ],
+    "configuration": {
+      "title": "TallyCode",
+      "properties": {
+        "tallycode.useGitignore": {
+          "type": "boolean",
+          "default": true,
+          "description": "Honor every .gitignore file in the workspace when scanning."
+        },
+        "tallycode.useFilesExclude": {
+          "type": "boolean",
+          "default": true,
+          "description": "Merge VSCode's files.exclude into the scan exclude list."
+        },
+        "tallycode.include": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "**/*"
+          ],
+          "description": "Glob patterns to include."
+        },
+        "tallycode.exclude": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "**/node_modules/**",
+            "**/dist/**",
+            "**/build/**",
+            "**/out/**",
+            "**/target/**",
+            "**/.git/**",
+            "**/.next/**",
+            "**/.nuxt/**",
+            "**/.svelte-kit/**",
+            "**/coverage/**",
+            "**/.cache/**",
+            "**/__pycache__/**",
+            "**/.venv/**",
+            "**/venv/**"
+          ],
+          "description": "Glob patterns to exclude from scanning."
+        },
+        "tallycode.maxFileSizeMB": {
+          "type": "number",
+          "default": 5,
+          "minimum": 0,
+          "description": "Skip files larger than this many megabytes (0 = unlimited)."
+        },
+        "tallycode.maxOpenFiles": {
+          "type": "number",
+          "default": 32,
+          "minimum": 1,
+          "description": "Maximum concurrent file reads during a scan."
+        },
+        "tallycode.useLspCalibration": {
+          "type": "boolean",
+          "default": false,
+          "description": "Use VSCode semantic tokens to calibrate comment/string detection on the active document (slower but more accurate)."
+        },
+        "tallycode.markerScanLines": {
+          "type": "number",
+          "default": 50,
+          "minimum": 0,
+          "description": "Scan the first N lines of each file for test-marker regexes. Set to 0 to disable in-file marker detection."
+        },
+        "tallycode.testRules": {
+          "type": "object",
+          "default": {
+            "default": {},
+            "perLanguage": {}
+          },
+          "description": "Overrides for the four-layer test classifier. The 'default' entry replaces built-in defaults; 'perLanguage' merges rules onto language ids."
+        },
+        "tallycode.languages": {
+          "type": "object",
+          "default": {},
+          "description": "Override or extend built-in language rules. Each key is a language id; values are partial LanguageRule objects."
+        },
+        "tallycode.languageConfUri": {
+          "type": "string",
+          "default": "",
+          "description": "Optional file:// URI to a JSON file containing additional language rules."
+        },
+        "tallycode.statusBar.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show TallyCode in the status bar with line counts for the active file."
+        },
+        "tallycode.statusBar.format": {
+          "type": "string",
+          "enum": ["loc", "code+comment", "percent"],
+          "default": "loc",
+          "description": "Status bar display: 'loc' (code only), 'code+comment' (both), or 'percent' (code % and comment %)."
+        },
+        "tallycode.statusBar.showLanguageIcon": {
+          "type": "boolean",
+          "default": true,
+          "description": "Use a per-language codicon in the status bar instead of the generic line-numbered icon."
+        }
+      }
+    }
   },
   "scripts": {
     "dev": "vite",
@@ -98,10 +338,14 @@
     "@radix-ui/react-slot": "^1.2.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "html-to-image": "^1.11.13",
+    "ignore": "^7.0.5",
     "lucide-react": "^1.16.0",
+    "p-limit": "^7.3.0",
     "radix-ui": "^1.4.3",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
+    "recharts": "^3.8.1",
     "sonner": "^2.0.7",
     "tailwind-merge": "^2.6.1"
   },
