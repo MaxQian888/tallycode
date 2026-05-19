@@ -1,9 +1,10 @@
 import { Buffer } from 'node:buffer';
 
-import { Uri, window, workspace } from 'vscode';
+import { l10n, Uri, window, workspace } from 'vscode';
 
 import { writeExport } from '../commands/exportReport';
 import { TallyCodeController } from '../controller';
+import { normalizeLocale } from '../i18n';
 import { logger } from '../logger';
 
 import type { WebviewToExtensionMessage } from '@shared/messages';
@@ -25,12 +26,16 @@ const handlers: HandlerMap = {
   'webview/error': (msg) => {
     const stack = msg.error.stack ? `\n${msg.error.stack}` : '';
     logger.error(`[webview render] ${msg.error.name}: ${msg.error.message}${stack}`);
-    window.showErrorMessage(`Webview error: ${msg.error.message}`);
+    window.showErrorMessage(l10n.t('Webview error: {0}', msg.error.message));
   },
   'webview/ready': (_msg, ctx) => {
     logger.info('webview ready');
-    // Restore last report (if any) so the panel isn't empty after reopen.
     const controller = TallyCodeController.get(ctx);
+    // Belt-and-suspenders: the data-locale attribute already sets bootstrap
+    // language, but if the webview is ever rehydrated with stale HTML this
+    // message re-syncs it.
+    void controller.ensurePanel().post({ type: 'locale/set', locale: normalizeLocale() });
+    // Restore last report (if any) so the panel isn't empty after reopen.
     const report = controller.getLastReport();
     if (report) {
       void controller.ensurePanel().post({ type: 'scan/done', report });
@@ -69,13 +74,13 @@ const handlers: HandlerMap = {
     if (!target)
       return;
     await workspace.fs.writeFile(target, data);
-    void window.showInformationMessage(`TallyCode: PNG saved to ${target.fsPath}`);
+    void window.showInformationMessage(l10n.t('TallyCode: PNG saved to {0}', target.fsPath));
   },
   'export/format': async (msg, ctx) => {
     const controller = TallyCodeController.get(ctx);
     const report = controller.getLastReport();
     if (!report) {
-      void window.showInformationMessage('TallyCode: run a scan first.');
+      void window.showInformationMessage(l10n.t('TallyCode: run a scan first.'));
       return;
     }
     await writeExport(ctx, report, msg.format, controller.getBaseline());

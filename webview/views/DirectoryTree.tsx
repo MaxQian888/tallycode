@@ -1,7 +1,9 @@
 import { ChevronDown, ChevronRight, ChevronsDownUp, ChevronsUpDown, File, Folder, FolderOpen } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/button';
+import { formatNumber } from '@/i18n/format';
 
 import type { IconThemePayload } from '@shared/messages';
 import type { DirectoryNode, FileEntry, Report } from '@shared/report';
@@ -33,10 +35,6 @@ function folderIconUri(theme: IconThemePayload, path: string, open: boolean): st
     return undefined;
   const id = open ? pair.open : pair.closed;
   return id ? theme.icons[id] : undefined;
-}
-
-function fmt(n: number): string {
-  return n.toLocaleString('en-US');
 }
 
 function parentDirOf(p: string): string {
@@ -154,11 +152,11 @@ function TreeRow({ node, depth, expanded, fileGroups, iconTheme, onToggle }: Row
             <span className="truncate font-mono text-xs">{node.name || '/'}</span>
           </button>
         </td>
-        <td className="px-2 py-1 text-right text-xs tabular-nums">{fmt(node.files)}</td>
-        <td className="px-2 py-1 text-right text-xs tabular-nums">{fmt(node.source.code)}</td>
-        <td className="px-2 py-1 text-right text-xs tabular-nums text-pink-400">{fmt(node.test.code)}</td>
-        <td className="px-2 py-1 text-right text-xs tabular-nums">{fmt(node.total.comment)}</td>
-        <td className="px-2 py-1 text-right text-xs tabular-nums font-medium">{fmt(node.total.total)}</td>
+        <td className="px-2 py-1 text-right text-xs tabular-nums">{formatNumber(node.files)}</td>
+        <td className="px-2 py-1 text-right text-xs tabular-nums">{formatNumber(node.source.code)}</td>
+        <td className="px-2 py-1 text-right text-xs tabular-nums text-pink-400">{formatNumber(node.test.code)}</td>
+        <td className="px-2 py-1 text-right text-xs tabular-nums">{formatNumber(node.total.comment)}</td>
+        <td className="px-2 py-1 text-right text-xs tabular-nums font-medium">{formatNumber(node.total.total)}</td>
       </tr>
       {isOpen && (
         <>
@@ -200,15 +198,16 @@ function FileLeafRow({ file, depth, iconTheme }: { file: FileEntry; depth: numbe
         </div>
       </td>
       <td className="px-2 py-1 text-right text-xs tabular-nums">1</td>
-      <td className="px-2 py-1 text-right text-xs tabular-nums">{fmt(file.isTest ? 0 : file.count.code)}</td>
-      <td className="px-2 py-1 text-right text-xs tabular-nums text-pink-400">{fmt(file.isTest ? file.count.code : 0)}</td>
-      <td className="px-2 py-1 text-right text-xs tabular-nums">{fmt(file.count.comment)}</td>
-      <td className="px-2 py-1 text-right text-xs tabular-nums font-medium">{fmt(file.count.total)}</td>
+      <td className="px-2 py-1 text-right text-xs tabular-nums">{formatNumber(file.isTest ? 0 : file.count.code)}</td>
+      <td className="px-2 py-1 text-right text-xs tabular-nums text-pink-400">{formatNumber(file.isTest ? file.count.code : 0)}</td>
+      <td className="px-2 py-1 text-right text-xs tabular-nums">{formatNumber(file.count.comment)}</td>
+      <td className="px-2 py-1 text-right text-xs tabular-nums font-medium">{formatNumber(file.count.total)}</td>
     </tr>
   );
 }
 
 export function DirectoryTree({ report, iconTheme = EMPTY_ICON_THEME }: Props) {
+  const { t } = useTranslation();
   const root = report.directoryTree;
   const fileGroups = useMemo(() => groupFilesByDir(report.files), [report.files]);
   const defaultExpanded = useMemo(() => buildDefaultExpansion(root, fileGroups), [root, fileGroups]);
@@ -248,23 +247,23 @@ export function DirectoryTree({ report, iconTheme = EMPTY_ICON_THEME }: Props) {
       <div className="flex items-center justify-end gap-1">
         <Button variant="outline" size="sm" onClick={expandAll}>
           <ChevronsUpDown className="mr-1 size-3.5" />
-          Expand all
+          {t('directoryTree.expandAll')}
         </Button>
         <Button variant="outline" size="sm" onClick={collapseAll}>
           <ChevronsDownUp className="mr-1 size-3.5" />
-          Collapse all
+          {t('directoryTree.collapseAll')}
         </Button>
       </div>
       <div className="overflow-auto rounded-md border">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-muted-foreground">
             <tr>
-              <th className="px-2 py-1.5 text-left text-xs font-medium">Path</th>
-              <th className="px-2 py-1.5 text-right text-xs font-medium">Files</th>
-              <th className="px-2 py-1.5 text-right text-xs font-medium">Source</th>
-              <th className="px-2 py-1.5 text-right text-xs font-medium">Test</th>
-              <th className="px-2 py-1.5 text-right text-xs font-medium">Comment</th>
-              <th className="px-2 py-1.5 text-right text-xs font-medium">Total</th>
+              <th className="px-2 py-1.5 text-left text-xs font-medium">{t('directoryTree.path')}</th>
+              <th className="px-2 py-1.5 text-right text-xs font-medium">{t('directoryTree.files')}</th>
+              <th className="px-2 py-1.5 text-right text-xs font-medium">{t('directoryTree.source')}</th>
+              <th className="px-2 py-1.5 text-right text-xs font-medium">{t('directoryTree.test')}</th>
+              <th className="px-2 py-1.5 text-right text-xs font-medium">{t('directoryTree.comment')}</th>
+              <th className="px-2 py-1.5 text-right text-xs font-medium">{t('directoryTree.total')}</th>
             </tr>
           </thead>
           <tbody>

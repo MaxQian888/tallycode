@@ -1,6 +1,6 @@
 import { Buffer } from 'node:buffer';
 
-import { CancellationTokenSource, EventEmitter, Uri, window, workspace } from 'vscode';
+import { CancellationTokenSource, EventEmitter, l10n, Uri, window, workspace } from 'vscode';
 
 import { onConfigChanged, readConfig } from './config';
 import { BUILTIN_LANGUAGES } from './counter/languageDefs';
@@ -232,7 +232,7 @@ export class TallyCodeController {
 
     const folder = this.resolveScanRoot(scope, uri);
     if (!folder) {
-      void window.showWarningMessage('TallyCode: no workspace folder to scan.');
+      void window.showWarningMessage(l10n.t('TallyCode: no workspace folder to scan.'));
       return undefined;
     }
     const panel = this.ensurePanel();
@@ -446,7 +446,7 @@ export class TallyCodeController {
 
   async saveBaseline(): Promise<void> {
     if (!this.lastReport) {
-      void window.showInformationMessage('TallyCode: run a scan first.');
+      void window.showInformationMessage(l10n.t('TallyCode: run a scan first.'));
       return;
     }
     const folder = workspace.workspaceFolders?.[0];
@@ -461,7 +461,7 @@ export class TallyCodeController {
       diff: buildDiff(this.baseline, this.lastReport),
     });
     this.fireTreeChanged();
-    void window.showInformationMessage('TallyCode: baseline saved.');
+    void window.showInformationMessage(l10n.t('TallyCode: baseline saved.'));
   }
 
   async clearBaseline(): Promise<void> {

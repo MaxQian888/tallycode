@@ -1,4 +1,4 @@
-import { MarkdownString, StatusBarAlignment, ThemeColor, window, workspace } from 'vscode';
+import { l10n, MarkdownString, StatusBarAlignment, ThemeColor, window, workspace } from 'vscode';
 
 import { countLines } from '../counter/lineCounter';
 
@@ -35,7 +35,7 @@ export class StatusBar implements Disposable {
     this.statusBarConfig = config;
     this.item = window.createStatusBarItem(STATUS_COMMAND, StatusBarAlignment.Right, 80);
     this.item.command = STATUS_COMMAND;
-    this.item.accessibilityInformation = { label: 'TallyCode status', role: 'button' };
+    this.item.accessibilityInformation = { label: l10n.t('TallyCode status'), role: 'button' };
     this.render(window.activeTextEditor);
 
     this.disposables.push(
@@ -119,7 +119,7 @@ export class StatusBar implements Disposable {
       errorMessage: this.errorMessage,
       format: this.statusBarConfig.format,
       showLanguageIcon: this.statusBarConfig.showLanguageIcon,
-    });
+    }, l10n.t);
 
     if (result.hidden) {
       this.item.hide();

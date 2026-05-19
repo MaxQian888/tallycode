@@ -1,12 +1,12 @@
 {
-  "publisher": "tallycode",
+  "publisher": "MaxQian",
   "name": "tallycode",
-  "displayName": "TallyCode — Code Line Counter",
+  "displayName": "%tallycode.displayName%",
   "type": "commonjs",
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@10.26.2",
-  "description": "Count code lines per language with source/test split, diff vs baseline, and beautiful dashboard exports.",
+  "description": "%tallycode.description%",
   "license": "MIT",
   "homepage": "https://github.com/MaxQian888/tallycode#readme",
   "repository": {
@@ -43,7 +43,7 @@
   "capabilities": {
     "untrustedWorkspaces": {
       "supported": "limited",
-      "description": "TallyCode reads files in the workspace to count lines. Enable only in workspaces you trust."
+      "description": "%tallycode.capabilities.untrustedWorkspaces.description%"
     },
     "virtualWorkspaces": true
   },
@@ -51,6 +51,7 @@
     "node": ">=20",
     "vscode": "^1.120.0"
   },
+  "l10n": "./l10n",
   "activationEvents": [
     "onStartupFinished"
   ],
@@ -58,63 +59,63 @@
     "commands": [
       {
         "command": "tallycode.openDashboard",
-        "title": "Open Dashboard",
-        "category": "TallyCode",
+        "title": "%tallycode.command.openDashboard.title%",
+        "category": "%tallycode.brand%",
         "icon": "$(graph)"
       },
       {
         "command": "tallycode.countWorkspace",
-        "title": "Count Workspace",
-        "category": "TallyCode",
+        "title": "%tallycode.command.countWorkspace.title%",
+        "category": "%tallycode.brand%",
         "icon": "$(list-tree)"
       },
       {
         "command": "tallycode.countDirectory",
-        "title": "Count This Folder",
-        "category": "TallyCode",
+        "title": "%tallycode.command.countDirectory.title%",
+        "category": "%tallycode.brand%",
         "icon": "$(folder-active)"
       },
       {
         "command": "tallycode.countFile",
-        "title": "Count Current File",
-        "category": "TallyCode",
+        "title": "%tallycode.command.countFile.title%",
+        "category": "%tallycode.brand%",
         "icon": "$(file-code)"
       },
       {
         "command": "tallycode.saveBaseline",
-        "title": "Save Current Result as Baseline",
-        "category": "TallyCode",
+        "title": "%tallycode.command.saveBaseline.title%",
+        "category": "%tallycode.brand%",
         "icon": "$(save)"
       },
       {
         "command": "tallycode.clearBaseline",
-        "title": "Clear Baseline",
-        "category": "TallyCode",
+        "title": "%tallycode.command.clearBaseline.title%",
+        "category": "%tallycode.brand%",
         "icon": "$(clear-all)"
       },
       {
         "command": "tallycode.exportReport",
-        "title": "Export Report…",
-        "category": "TallyCode",
+        "title": "%tallycode.command.exportReport.title%",
+        "category": "%tallycode.brand%",
         "icon": "$(export)"
       },
       {
         "command": "tallycode.statusBarMenu",
-        "title": "Status Bar Menu",
-        "category": "TallyCode",
+        "title": "%tallycode.command.statusBarMenu.title%",
+        "category": "%tallycode.brand%",
         "icon": "$(list-ordered)"
       },
       {
         "command": "tallycode.tree.openHighlight",
-        "title": "Open in Dashboard",
-        "category": "TallyCode"
+        "title": "%tallycode.command.tree.openHighlight.title%",
+        "category": "%tallycode.brand%"
       }
     ],
     "viewsContainers": {
       "activitybar": [
         {
           "id": "tallycodeContainer",
-          "title": "TallyCode",
+          "title": "%tallycode.brand%",
           "icon": "assets/sidebar.svg"
         }
       ]
@@ -123,8 +124,8 @@
       "tallycodeContainer": [
         {
           "id": "tallycode.explorer",
-          "name": "Overview",
-          "contextualTitle": "TallyCode",
+          "name": "%tallycode.view.overview.name%",
+          "contextualTitle": "%tallycode.brand%",
           "icon": "assets/sidebar.svg"
         }
       ]
@@ -201,17 +202,17 @@
       }
     ],
     "configuration": {
-      "title": "TallyCode",
+      "title": "%tallycode.brand%",
       "properties": {
         "tallycode.useGitignore": {
           "type": "boolean",
           "default": true,
-          "description": "Honor every .gitignore file in the workspace when scanning."
+          "description": "%tallycode.config.useGitignore.description%"
         },
         "tallycode.useFilesExclude": {
           "type": "boolean",
           "default": true,
-          "description": "Merge VSCode's files.exclude into the scan exclude list."
+          "description": "%tallycode.config.useFilesExclude.description%"
         },
         "tallycode.include": {
           "type": "array",
@@ -221,7 +222,7 @@
           "default": [
             "**/*"
           ],
-          "description": "Glob patterns to include."
+          "description": "%tallycode.config.include.description%"
         },
         "tallycode.exclude": {
           "type": "array",
@@ -244,30 +245,30 @@
             "**/.venv/**",
             "**/venv/**"
           ],
-          "description": "Glob patterns to exclude from scanning."
+          "description": "%tallycode.config.exclude.description%"
         },
         "tallycode.maxFileSizeMB": {
           "type": "number",
           "default": 5,
           "minimum": 0,
-          "description": "Skip files larger than this many megabytes (0 = unlimited)."
+          "description": "%tallycode.config.maxFileSizeMB.description%"
         },
         "tallycode.maxOpenFiles": {
           "type": "number",
           "default": 32,
           "minimum": 1,
-          "description": "Maximum concurrent file reads during a scan."
+          "description": "%tallycode.config.maxOpenFiles.description%"
         },
         "tallycode.useLspCalibration": {
           "type": "boolean",
           "default": false,
-          "description": "Use VSCode semantic tokens to calibrate comment/string detection on the active document (slower but more accurate)."
+          "description": "%tallycode.config.useLspCalibration.description%"
         },
         "tallycode.markerScanLines": {
           "type": "number",
           "default": 50,
           "minimum": 0,
-          "description": "Scan the first N lines of each file for test-marker regexes. Set to 0 to disable in-file marker detection."
+          "description": "%tallycode.config.markerScanLines.description%"
         },
         "tallycode.testRules": {
           "type": "object",
@@ -275,33 +276,33 @@
             "default": {},
             "perLanguage": {}
           },
-          "description": "Overrides for the four-layer test classifier. The 'default' entry replaces built-in defaults; 'perLanguage' merges rules onto language ids."
+          "description": "%tallycode.config.testRules.description%"
         },
         "tallycode.languages": {
           "type": "object",
           "default": {},
-          "description": "Override or extend built-in language rules. Each key is a language id; values are partial LanguageRule objects."
+          "description": "%tallycode.config.languages.description%"
         },
         "tallycode.languageConfUri": {
           "type": "string",
           "default": "",
-          "description": "Optional file:// URI to a JSON file containing additional language rules."
+          "description": "%tallycode.config.languageConfUri.description%"
         },
         "tallycode.statusBar.enabled": {
           "type": "boolean",
           "default": true,
-          "description": "Show TallyCode in the status bar with line counts for the active file."
+          "description": "%tallycode.config.statusBar.enabled.description%"
         },
         "tallycode.statusBar.format": {
           "type": "string",
           "enum": ["loc", "code+comment", "percent"],
           "default": "loc",
-          "description": "Status bar display: 'loc' (code only), 'code+comment' (both), or 'percent' (code % and comment %)."
+          "description": "%tallycode.config.statusBar.format.description%"
         },
         "tallycode.statusBar.showLanguageIcon": {
           "type": "boolean",
           "default": true,
-          "description": "Use a per-language codicon in the status bar instead of the generic line-numbered icon."
+          "description": "%tallycode.config.statusBar.showLanguageIcon.description%"
         }
       }
     }
@@ -347,12 +348,14 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "html-to-image": "^1.11.13",
+    "i18next": "^25.6.0",
     "ignore": "^7.0.5",
     "lucide-react": "^1.16.0",
     "p-limit": "^7.3.0",
     "radix-ui": "^1.4.3",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
+    "react-i18next": "^16.4.0",
     "recharts": "^3.8.1",
     "sonner": "^2.0.7",
     "tailwind-merge": "^2.6.1"

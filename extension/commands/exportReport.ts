@@ -1,6 +1,6 @@
 import { Buffer } from 'node:buffer';
 
-import { commands, Uri, window } from 'vscode';
+import { commands, l10n, Uri, window } from 'vscode';
 
 import { TallyCodeController } from '../controller';
 import { logger } from '../logger';
@@ -23,7 +23,7 @@ export function register(context: ExtensionContext): void {
         const controller = TallyCodeController.get(context);
         const report = controller.getLastReport();
         if (!report) {
-          void window.showInformationMessage('TallyCode: run a scan first.');
+          void window.showInformationMessage(l10n.t('TallyCode: run a scan first.'));
           return;
         }
         const format = preset ?? await pickFormat();
@@ -42,12 +42,12 @@ export function register(context: ExtensionContext): void {
 async function pickFormat(): Promise<ExportFormat | undefined> {
   const picked = await window.showQuickPick(
     [
-      { label: 'Markdown', description: 'Tables + diff summary', value: 'md' as const },
-      { label: 'CSV', description: 'Per-file rows', value: 'csv' as const },
-      { label: 'JSON', description: 'Full Report payload', value: 'json' as const },
-      { label: 'HTML (self-contained)', description: 'Dashboard offline viewer', value: 'html' as const },
+      { label: 'Markdown', description: l10n.t('Tables + diff summary'), value: 'md' as const },
+      { label: 'CSV', description: l10n.t('Per-file rows'), value: 'csv' as const },
+      { label: 'JSON', description: l10n.t('Full Report payload'), value: 'json' as const },
+      { label: l10n.t('HTML (self-contained)'), description: l10n.t('Dashboard offline viewer'), value: 'html' as const },
     ],
-    { placeHolder: 'Export format' },
+    { placeHolder: l10n.t('Export format') },
   );
   return picked?.value;
 }
@@ -67,7 +67,7 @@ export async function writeExport(
   if (!target)
     return undefined;
   await writeBytes(target, content);
-  void window.showInformationMessage(`TallyCode: exported to ${target.fsPath}`);
+  void window.showInformationMessage(l10n.t('TallyCode: exported to {0}', target.fsPath));
   return target;
 }
 

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Bar,
   BarChart,
@@ -13,6 +14,7 @@ import {
 } from 'recharts';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { formatNumber } from '@/i18n/format';
 
 import type { Report } from '@shared/report';
 
@@ -43,6 +45,7 @@ function colorFor(idx: number): string {
 }
 
 export function LanguageBreakdown({ report }: Props) {
+  const { t } = useTranslation();
   const top = useMemo(() => report.languages.slice(0, 12), [report.languages]);
   const [hidden, setHidden] = useState<Set<string>>(new Set());
 
@@ -93,7 +96,7 @@ export function LanguageBreakdown({ report }: Props) {
     <div className="grid gap-3 lg:grid-cols-2">
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">Code lines by language</CardTitle>
+          <CardTitle className="text-base">{t('charts.codeByLanguage')}</CardTitle>
         </CardHeader>
         <CardContent className="h-72">
           {allHidden
@@ -119,7 +122,7 @@ export function LanguageBreakdown({ report }: Props) {
                       ))}
                     </Pie>
                     <Tooltip
-                      formatter={value => Number(value).toLocaleString('en-US')}
+                      formatter={value => formatNumber(Number(value))}
                       contentStyle={{
                         background: 'var(--popover)',
                         border: '1px solid var(--border)',
@@ -142,7 +145,7 @@ export function LanguageBreakdown({ report }: Props) {
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">Source vs Test per language</CardTitle>
+          <CardTitle className="text-base">{t('charts.sourceVsTest')}</CardTitle>
         </CardHeader>
         <CardContent className="h-72">
           {barData.length === 0
@@ -161,7 +164,7 @@ export function LanguageBreakdown({ report }: Props) {
                     />
                     <YAxis tick={{ fontSize: 10 }} />
                     <Tooltip
-                      formatter={value => Number(value).toLocaleString('en-US')}
+                      formatter={value => formatNumber(Number(value))}
                       contentStyle={{
                         background: 'var(--popover)',
                         border: '1px solid var(--border)',
@@ -186,15 +189,16 @@ export function LanguageBreakdown({ report }: Props) {
 }
 
 function EmptyChartHint({ onReset }: { onReset: () => void }) {
+  const { t } = useTranslation();
   return (
     <div className="flex h-full flex-col items-center justify-center gap-2 text-sm text-muted-foreground">
-      <span>All languages hidden</span>
+      <span>{t('charts.allHidden')}</span>
       <button
         type="button"
         onClick={onReset}
         className="text-xs underline decoration-dotted underline-offset-2 hover:text-foreground"
       >
-        Reset
+        {t('charts.reset')}
       </button>
     </div>
   );

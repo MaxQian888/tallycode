@@ -50,6 +50,7 @@ export type ExtensionToWebviewMessage
     | { type: 'export/saved'; path: string; format: ExportFormat | 'png' }
     | { type: 'scan/stale'; changedCount: number }
     | { type: 'view/highlight'; target: HighlightTarget; payload?: { languageId?: string } }
-    | { type: 'iconTheme/icons'; payload: IconThemePayload };
+    | { type: 'iconTheme/icons'; payload: IconThemePayload }
+    | { type: 'locale/set'; locale: 'en' | 'zh-cn' };
 
 export type MessageOf<T extends string, M extends { type: string }> = Extract<M, { type: T }>;

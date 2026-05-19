@@ -1,0 +1,136 @@
+{
+  "app": {
+    "title": "TallyCode",
+    "changedSinceLastScan": "changed since last scan"
+  },
+  "actions": {
+    "refresh": "Refresh",
+    "scanWorkspace": "Scan workspace",
+    "saveBaseline": "Save baseline",
+    "export": "Export"
+  },
+  "exportMenu": {
+    "markdown": "Markdown",
+    "csv": "CSV",
+    "json": "JSON",
+    "htmlOffline": "HTML (offline)",
+    "pngScreenshot": "PNG screenshot"
+  },
+  "progress": {
+    "scanning": "Scanning {{processed}} / {{total}}"
+  },
+  "empty": {
+    "title": "Run your first scan",
+    "subtitle": "Count every code, comment, and blank line in this workspace. Test files are split out automatically."
+  },
+  "tabs": {
+    "byLanguage": "By language",
+    "directoryTree": "Directory tree",
+    "files": "Files",
+    "diffVsBaseline": "Diff vs baseline",
+    "noBaseline": "No baseline saved yet."
+  },
+  "summary": {
+    "totalFiles": "Total files",
+    "totalFilesSub": "{{source}} source · {{test}} test",
+    "totalLines": "Total lines",
+    "totalLinesSub": "{{code}} code ({{percent}}%)",
+    "testShare": "Test share",
+    "testShareSub": "{{lines}} test code lines",
+    "languages": "Languages",
+    "languagesSub": "scanned in {{ms}} ms"
+  },
+  "charts": {
+    "codeByLanguage": "Code lines by language",
+    "sourceVsTest": "Source vs Test per language",
+    "allHidden": "All languages hidden",
+    "reset": "Reset"
+  },
+  "languageTable": {
+    "language": "Language",
+    "files": "Files",
+    "sourceCode": "Source code",
+    "testCode": "Test code",
+    "comments": "Comments",
+    "blank": "Blank",
+    "total": "Total",
+    "testBadge": "test"
+  },
+  "fileTable": {
+    "searchPath": "Search path…",
+    "allFiles": "All files",
+    "sourceOnly": "Source only",
+    "testOnly": "Test only",
+    "presets": "Presets",
+    "presetName": "Preset name",
+    "save": "Save",
+    "noPresets": "No presets saved yet",
+    "deletePreset": "Delete {{name}}",
+    "allLangs": "all langs",
+    "langsCount": "{{count}} langs",
+    "path": "Path",
+    "lang": "Lang",
+    "test": "Test",
+    "code": "Code",
+    "comment": "Comment",
+    "blank": "Blank",
+    "total": "Total",
+    "noMatch": "No files match the filters.",
+    "fileCount_one": "{{count}} file",
+    "fileCount_other": "{{count}} files",
+    "pageOf": "page {{page}} / {{pages}}",
+    "prev": "Prev",
+    "next": "Next"
+  },
+  "directoryTree": {
+    "expandAll": "Expand all",
+    "collapseAll": "Collapse all",
+    "path": "Path",
+    "files": "Files",
+    "source": "Source",
+    "test": "Test",
+    "comment": "Comment",
+    "total": "Total"
+  },
+  "diff": {
+    "summaryDelta": "Summary delta",
+    "codeLines": "Code lines",
+    "comments": "Comments",
+    "blankLines": "Blank lines",
+    "totalLines": "Total lines",
+    "added": "{{count}} added",
+    "removed": "{{count}} removed",
+    "changed": "{{count}} changed",
+    "files": "Files",
+    "path": "Path",
+    "lang": "Lang",
+    "status": "Status",
+    "before": "Before",
+    "after": "After",
+    "deltaSymbol": "Δ",
+    "was": "was {{value}}",
+    "statusAdded": "added",
+    "statusRemoved": "removed",
+    "statusChanged": "changed"
+  },
+  "langFilter": {
+    "allLanguages": "All languages",
+    "filter": "Filter languages…",
+    "noMatches": "No matches",
+    "remove": "Remove {{name}}",
+    "clear": "Clear",
+    "selectedCount": "{{count}} languages",
+    "morePlus": "+{{count}}"
+  },
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "unknown": "Unknown error"
+  },
+  "toast": {
+    "scanned_one": "Scanned {{display}} file in {{ms}} ms",
+    "scanned_other": "Scanned {{display}} files in {{ms}} ms",
+    "scanFailed": "Scan failed: {{message}}",
+    "exported": "Exported ({{format}}) to {{path}}",
+    "baselineLoaded": "Baseline loaded"
+  }
+}

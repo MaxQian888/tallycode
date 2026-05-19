@@ -8,6 +8,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -24,6 +25,7 @@ import { useReport } from '@/hooks/useReport';
 import { useTheme } from '@/hooks/useTheme';
 import { useToastNotifications } from '@/hooks/useToastNotifications';
 import { useVscodeMessage } from '@/hooks/useVscodeMessage';
+import { formatNumber } from '@/i18n/format';
 import { exportPng } from '@/utils/exportPng';
 import { vscode } from '@/utils/vscode';
 
@@ -48,6 +50,7 @@ const TAB_FOR_TARGET: Partial<Record<HighlightTarget, string>> = {
 };
 
 export function Dashboard() {
+  const { t } = useTranslation();
   const state = useReport();
   const theme = useTheme();
   const dashboardRef = useRef<HTMLDivElement>(null);
@@ -96,7 +99,7 @@ export function Dashboard() {
       <Toaster position="bottom-right" richColors />
       <header className="flex items-center gap-2">
         <div className="size-2 rounded-full bg-emerald-400" />
-        <h1 className="text-lg font-semibold">TallyCode</h1>
+        <h1 className="text-lg font-semibold">{t('app.title')}</h1>
         {state.report?.scope && (
           <Badge variant="outline" className="font-mono">{state.report.scope}</Badge>
         )}
@@ -104,7 +107,7 @@ export function Dashboard() {
           <Badge variant="secondary" className="gap-1">
             {state.staleCount}
             {' '}
-            changed since last scan
+            {t('app.changedSinceLastScan')}
           </Badge>
         )}
         <div className="ml-auto flex flex-wrap gap-1.5">
@@ -116,7 +119,7 @@ export function Dashboard() {
               disabled={!!state.progress}
             >
               <RefreshCw className="mr-1 size-3.5" />
-              Refresh
+              {t('actions.refresh')}
             </Button>
           )}
           <Button
@@ -128,27 +131,27 @@ export function Dashboard() {
             {state.progress
               ? <Loader2 className="mr-1 size-3.5 animate-spin" />
               : <Play className="mr-1 size-3.5" />}
-            Scan workspace
+            {t('actions.scanWorkspace')}
           </Button>
           <Button size="sm" variant="outline" onClick={onSaveBaseline} disabled={!state.report}>
             <History className="mr-1 size-3.5" />
-            Save baseline
+            {t('actions.saveBaseline')}
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button size="sm" variant="outline" disabled={!state.report}>
                 <Download className="mr-1 size-3.5" />
-                Export
+                {t('actions.export')}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onExportFormat('md')}>Markdown</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onExportFormat('csv')}>CSV</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onExportFormat('json')}>JSON</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onExportFormat('html')}>HTML (offline)</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onExportFormat('md')}>{t('exportMenu.markdown')}</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onExportFormat('csv')}>{t('exportMenu.csv')}</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onExportFormat('json')}>{t('exportMenu.json')}</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onExportFormat('html')}>{t('exportMenu.htmlOffline')}</DropdownMenuItem>
               <DropdownMenuItem onClick={onExportPng}>
                 <Camera className="mr-1 size-3.5" />
-                PNG screenshot
+                {t('exportMenu.pngScreenshot')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -159,13 +162,10 @@ export function Dashboard() {
         <div className="space-y-1">
           <Progress value={state.progress.processed} max={state.progress.total} />
           <p className="text-xs text-muted-foreground">
-            Scanning
-            {' '}
-            {state.progress.processed.toLocaleString('en-US')}
-            {' '}
-            /
-            {' '}
-            {state.progress.total.toLocaleString('en-US')}
+            {t('progress.scanning', {
+              processed: formatNumber(state.progress.processed),
+              total: formatNumber(state.progress.total),
+            })}
             {state.progress.currentFile && (
               <span className="ml-2 truncate font-mono">
                 ·
@@ -194,12 +194,12 @@ export function Dashboard() {
 
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList>
-              <TabsTrigger value="languages">By language</TabsTrigger>
-              <TabsTrigger value="directories">Directory tree</TabsTrigger>
-              <TabsTrigger value="files">Files</TabsTrigger>
+              <TabsTrigger value="languages">{t('tabs.byLanguage')}</TabsTrigger>
+              <TabsTrigger value="directories">{t('tabs.directoryTree')}</TabsTrigger>
+              <TabsTrigger value="files">{t('tabs.files')}</TabsTrigger>
               <TabsTrigger value="diff" disabled={!state.diff}>
                 <GitCompare className="mr-1 size-3.5" />
-                Diff vs baseline
+                {t('tabs.diffVsBaseline')}
               </TabsTrigger>
             </TabsList>
             <TabsContent value="languages" className="mt-3">
@@ -216,7 +216,7 @@ export function Dashboard() {
             <TabsContent value="diff" className="mt-3">
               {state.diff
                 ? <DiffView diff={state.diff} />
-                : <div className="text-sm text-muted-foreground">No baseline saved yet.</div>}
+                : <div className="text-sm text-muted-foreground">{t('tabs.noBaseline')}</div>}
             </TabsContent>
           </Tabs>
         </div>
@@ -226,18 +226,17 @@ export function Dashboard() {
 }
 
 function EmptyState({ onScan }: { onScan: () => void }) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed py-16 text-center">
       <RefreshCw className="size-8 text-muted-foreground" />
       <div>
-        <h2 className="text-base font-semibold">Run your first scan</h2>
-        <p className="text-sm text-muted-foreground">
-          Count every code, comment, and blank line in this workspace. Test files are split out automatically.
-        </p>
+        <h2 className="text-base font-semibold">{t('empty.title')}</h2>
+        <p className="text-sm text-muted-foreground">{t('empty.subtitle')}</p>
       </div>
       <Button onClick={onScan}>
         <Play className="mr-1 size-3.5" />
-        Scan workspace
+        {t('actions.scanWorkspace')}
       </Button>
     </div>
   );

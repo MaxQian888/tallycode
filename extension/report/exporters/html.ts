@@ -2,8 +2,13 @@ import { Buffer } from 'node:buffer';
 
 import { Uri, workspace } from 'vscode';
 
+import { normalizeLocale } from '../../i18n';
+
 import type { Report } from '@shared/report';
 import type { ExtensionContext } from 'vscode';
+
+const HTML_TAG_RE = /<html\b([^>]*)>/i;
+const LANG_ATTR_RE = /\blang\s*=\s*"[^"]*"/i;
 
 /**
  * Produce a single self-contained HTML file that embeds the built webview
@@ -39,6 +44,17 @@ export async function exportHtml(context: ExtensionContext, report: Report): Pro
       return `<script${typeAttr}>${js}</script>`;
     },
   );
+
+  // Stamp the active locale onto <html> so the bundled React app boots in the
+  // user's language. Both `lang` (accessibility / font fallback) and
+  // `data-locale` (read by webview/i18n) are written.
+  const locale = normalizeLocale();
+  const bcp47 = locale === 'zh-cn' ? 'zh-CN' : 'en';
+  html = html.replace(HTML_TAG_RE, (_m, attrs: string) => {
+    const cleaned = attrs.replace(LANG_ATTR_RE, '').trim();
+    const prefix = cleaned ? ` ${cleaned}` : '';
+    return `<html${prefix} lang="${bcp47}" data-locale="${locale}">`;
+  });
 
   // Inject report JSON as global before the bundled script reads it.
   const injection = `<script>window.__TALLYCODE_REPORT__ = ${JSON.stringify(report)};</script>`;

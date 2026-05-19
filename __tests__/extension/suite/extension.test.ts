@@ -1,9 +1,17 @@
 import * as assert from 'node:assert';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 
 import * as vscode from 'vscode';
 
-const PUBLISHER = 'tallycode';
-const NAME = 'tallycode';
+// Read the actual publisher/name from package.json at runtime so the test
+// stays in sync if either is renamed. __dirname is `__tests__/out/extension/suite`
+// after tsc; package.json is 4 levels up at the repo root.
+const PKG = JSON.parse(
+  fs.readFileSync(path.resolve(__dirname, '../../../../package.json'), 'utf8'),
+) as { publisher: string; name: string };
+const PUBLISHER = PKG.publisher;
+const NAME = PKG.name;
 const EXTENSION_ID = `${PUBLISHER}.${NAME}`;
 const OPEN_DASHBOARD_COMMAND_ID = 'tallycode.openDashboard';
 const TALLYCODE_COMMANDS = [
@@ -79,5 +87,25 @@ describe('vscode API surface', function () {
 
   it('extensions API is available', () => {
     assert.ok(vscode.extensions);
+  });
+});
+
+describe('i18n', function () {
+  this.timeout(10000);
+
+  it('vscode.l10n is exposed by the API', () => {
+    assert.ok(vscode.l10n, 'vscode.l10n should be available');
+    assert.strictEqual(typeof vscode.l10n.t, 'function', 'vscode.l10n.t should be callable');
+  });
+
+  it('vscode.l10n.t returns the English source string when no bundle matches', () => {
+    const out = vscode.l10n.t('TallyCode: run a scan first.');
+    assert.strictEqual(typeof out, 'string');
+    assert.ok(out.length > 0, 'translated string should not be empty');
+  });
+
+  it('vscode.l10n.t interpolates {0}-style placeholders', () => {
+    const out = vscode.l10n.t('TallyCode: exported to {0}', '/tmp/x.html');
+    assert.ok(out.includes('/tmp/x.html'), 'placeholder should be substituted');
   });
 });

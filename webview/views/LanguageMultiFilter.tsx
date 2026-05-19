@@ -1,5 +1,6 @@
 import { ChevronDown, XIcon } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export function LanguageMultiFilter({ langs, selected, onChange }: Props) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
 
@@ -32,10 +34,10 @@ export function LanguageMultiFilter({ langs, selected, onChange }: Props) {
   };
 
   const label = selected.size === 0
-    ? 'All languages'
+    ? t('langFilter.allLanguages')
     : selected.size === 1
       ? [...selected][0]!
-      : `${selected.size} languages`;
+      : t('langFilter.selectedCount', { count: selected.size });
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -47,14 +49,14 @@ export function LanguageMultiFilter({ langs, selected, onChange }: Props) {
       </PopoverTrigger>
       <PopoverContent align="start" className="w-64 p-2">
         <Input
-          placeholder="Filter languages…"
+          placeholder={t('langFilter.filter')}
           value={query}
           onChange={e => setQuery(e.target.value)}
           className="mb-2 h-8 text-xs"
         />
         <div className="max-h-56 overflow-auto">
           {filtered.length === 0 && (
-            <p className="px-2 py-3 text-center text-xs text-muted-foreground">No matches</p>
+            <p className="px-2 py-3 text-center text-xs text-muted-foreground">{t('langFilter.noMatches')}</p>
           )}
           {filtered.map(lang => (
             <label
@@ -78,7 +80,7 @@ export function LanguageMultiFilter({ langs, selected, onChange }: Props) {
                   type="button"
                   onClick={() => toggle(l)}
                   className="hover:text-foreground"
-                  aria-label={`Remove ${l}`}
+                  aria-label={t('langFilter.remove', { name: l })}
                 >
                   <XIcon className="size-3" />
                 </button>
@@ -86,12 +88,11 @@ export function LanguageMultiFilter({ langs, selected, onChange }: Props) {
             ))}
             {selected.size > 4 && (
               <Badge variant="secondary" className="text-[10px]">
-                +
-                {selected.size - 4}
+                {t('langFilter.morePlus', { count: selected.size - 4 })}
               </Badge>
             )}
             <Button variant="ghost" size="sm" className="ml-auto h-6 text-xs" onClick={clear}>
-              Clear
+              {t('langFilter.clear')}
             </Button>
           </div>
         )}

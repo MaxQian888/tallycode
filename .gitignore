@@ -73,3 +73,5 @@ playwright-report
 
 # vscode test
 .vscode-test
+
+.tallycode

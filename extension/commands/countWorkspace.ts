@@ -1,4 +1,4 @@
-import { commands, window, workspace } from 'vscode';
+import { commands, l10n, window, workspace } from 'vscode';
 
 import { TallyCodeController } from '../controller';
 import { logger } from '../logger';
@@ -41,8 +41,8 @@ async function pickWorkspaceTarget(): Promise<Uri | undefined | 'cancelled'> {
   const picked = await window.showQuickPick(
     [
       {
-        label: '$(folder-library) All folders',
-        description: `Scan every workspace folder (${folders.length})`,
+        label: `$(folder-library) ${l10n.t('All folders')}`,
+        description: l10n.t('Scan every workspace folder ({0})', folders.length),
         value: ALL_FOLDERS_VALUE,
       },
       ...folders.map(f => ({
@@ -51,7 +51,7 @@ async function pickWorkspaceTarget(): Promise<Uri | undefined | 'cancelled'> {
         value: f.uri.toString(),
       })),
     ],
-    { placeHolder: 'Multi-root workspace — choose what to scan' },
+    { placeHolder: l10n.t('Multi-root workspace — choose what to scan') },
   );
   if (!picked)
     return 'cancelled';

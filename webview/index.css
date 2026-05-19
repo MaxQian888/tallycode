@@ -31,5 +31,10 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Add CJK fallbacks so exported HTML renders cleanly on systems without
+       VSCode's font stack — Windows/macOS/Linux Chinese fonts in order. */
+    font-family:
+      var(--vscode-font-family, system-ui), 'PingFang SC', 'Microsoft YaHei', 'Hiragino Sans GB', 'Noto Sans CJK SC',
+      'Source Han Sans SC', sans-serif;
   }
 }

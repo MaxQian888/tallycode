@@ -1,4 +1,4 @@
-import { commands, Uri, window } from 'vscode';
+import { commands, l10n, Uri, window } from 'vscode';
 
 import { TallyCodeController } from '../controller';
 import { logger } from '../logger';
@@ -15,7 +15,7 @@ export function register(context: ExtensionContext): void {
           ? target
           : window.activeTextEditor?.document.uri;
         if (!fileUri) {
-          void window.showWarningMessage('TallyCode: no active file to count.');
+          void window.showWarningMessage(l10n.t('TallyCode: no active file to count.'));
           return;
         }
         const controller = TallyCodeController.get(context);

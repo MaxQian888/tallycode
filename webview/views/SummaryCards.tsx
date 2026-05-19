@@ -1,15 +1,13 @@
 import { FileText, FlaskConical, Languages, Sigma } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import { Card, CardContent } from '@/components/ui/card';
+import { formatNumber } from '@/i18n/format';
 
 import type { Report } from '@shared/report';
 
 interface Props {
   report: Report;
-}
-
-function formatNum(n: number): string {
-  return n.toLocaleString('en-US');
 }
 
 function Kpi({
@@ -40,6 +38,7 @@ function Kpi({
 }
 
 export function SummaryCards({ report }: Props) {
+  const { t } = useTranslation();
   const { summary } = report;
   const testPct = summary.totalFiles > 0
     ? ((summary.testFiles / summary.totalFiles) * 100).toFixed(1)
@@ -52,27 +51,33 @@ export function SummaryCards({ report }: Props) {
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       <Kpi
         icon={FileText}
-        label="Total files"
-        value={formatNum(summary.totalFiles)}
-        sub={`${formatNum(summary.sourceFiles)} source · ${formatNum(summary.testFiles)} test`}
+        label={t('summary.totalFiles')}
+        value={formatNumber(summary.totalFiles)}
+        sub={t('summary.totalFilesSub', {
+          source: formatNumber(summary.sourceFiles),
+          test: formatNumber(summary.testFiles),
+        })}
       />
       <Kpi
         icon={Sigma}
-        label="Total lines"
-        value={formatNum(summary.total.total)}
-        sub={`${formatNum(summary.total.code)} code (${codeShare}%)`}
+        label={t('summary.totalLines')}
+        value={formatNumber(summary.total.total)}
+        sub={t('summary.totalLinesSub', {
+          code: formatNumber(summary.total.code),
+          percent: codeShare,
+        })}
       />
       <Kpi
         icon={FlaskConical}
-        label="Test share"
+        label={t('summary.testShare')}
         value={`${testPct}%`}
-        sub={`${formatNum(summary.test.code)} test code lines`}
+        sub={t('summary.testShareSub', { lines: formatNumber(summary.test.code) })}
       />
       <Kpi
         icon={Languages}
-        label="Languages"
-        value={formatNum(summary.languageCount)}
-        sub={`scanned in ${report.durationMs} ms`}
+        label={t('summary.languages')}
+        value={formatNumber(summary.languageCount)}
+        sub={t('summary.languagesSub', { ms: report.durationMs })}
       />
     </div>
   );

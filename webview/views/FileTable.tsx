@@ -1,5 +1,6 @@
 import { ArrowDown, ArrowUp, Bookmark, Search, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,7 @@ import {
 } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useFilterPresets } from '@/hooks/useFilterPresets';
+import { formatNumber } from '@/i18n/format';
 
 import { LanguageMultiFilter } from './LanguageMultiFilter';
 
@@ -28,11 +30,8 @@ interface Props {
 
 const PAGE_SIZE = 50;
 
-function fmt(n: number): string {
-  return n.toLocaleString('en-US');
-}
-
 export function FileTable({ report }: Props) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [langFilters, setLangFilters] = useState<Set<string>>(new Set());
   const [testFilter, setTestFilter] = useState<'all' | 'source' | 'test'>('all');
@@ -106,7 +105,7 @@ export function FileTable({ report }: Props) {
         <div className="relative min-w-0 flex-1">
           <Search className="pointer-events-none absolute top-1/2 left-2 size-3.5 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search path…"
+            placeholder={t('fileTable.searchPath')}
             value={query}
             onChange={e => setQuery(e.target.value)}
             className="pl-7"
@@ -116,16 +115,16 @@ export function FileTable({ report }: Props) {
         <Select value={testFilter} onValueChange={v => setTestFilter(v as typeof testFilter)}>
           <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All files</SelectItem>
-            <SelectItem value="source">Source only</SelectItem>
-            <SelectItem value="test">Test only</SelectItem>
+            <SelectItem value="all">{t('fileTable.allFiles')}</SelectItem>
+            <SelectItem value="source">{t('fileTable.sourceOnly')}</SelectItem>
+            <SelectItem value="test">{t('fileTable.testOnly')}</SelectItem>
           </SelectContent>
         </Select>
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="outline" size="sm">
               <Bookmark className="mr-1 size-3.5" />
-              Presets
+              {t('fileTable.presets')}
               {presets.length > 0 && (
                 <Badge variant="secondary" className="ml-1 text-[10px]">{presets.length}</Badge>
               )}
@@ -134,7 +133,7 @@ export function FileTable({ report }: Props) {
           <PopoverContent align="end" className="w-72 p-2">
             <div className="mb-2 flex gap-1">
               <Input
-                placeholder="Preset name"
+                placeholder={t('fileTable.presetName')}
                 value={presetName}
                 onChange={e => setPresetName(e.target.value)}
                 className="h-8 text-xs"
@@ -144,13 +143,13 @@ export function FileTable({ report }: Props) {
                 }}
               />
               <Button size="sm" onClick={handleSavePreset} disabled={!presetName.trim()}>
-                Save
+                {t('fileTable.save')}
               </Button>
             </div>
             <div className="max-h-56 space-y-1 overflow-auto">
               {presets.length === 0 && (
                 <p className="px-2 py-3 text-center text-xs text-muted-foreground">
-                  No presets saved yet
+                  {t('fileTable.noPresets')}
                 </p>
               )}
               {presets.map(p => (
@@ -165,7 +164,7 @@ export function FileTable({ report }: Props) {
                   >
                     <span className="font-medium">{p.name}</span>
                     <span className="ml-1 text-muted-foreground">
-                      {p.langs.length === 0 ? 'all langs' : `${p.langs.length} langs`}
+                      {p.langs.length === 0 ? t('fileTable.allLangs') : t('fileTable.langsCount', { count: p.langs.length })}
                       {p.testFilter !== 'all' ? ` · ${p.testFilter}` : ''}
                       {p.query ? ` · "${p.query}"` : ''}
                     </span>
@@ -174,7 +173,7 @@ export function FileTable({ report }: Props) {
                     type="button"
                     onClick={() => remove(p.name)}
                     className="text-muted-foreground hover:text-rose-400"
-                    aria-label={`Delete ${p.name}`}
+                    aria-label={t('fileTable.deletePreset', { name: p.name })}
                   >
                     <Trash2 className="size-3.5" />
                   </button>
@@ -189,13 +188,13 @@ export function FileTable({ report }: Props) {
         <Table>
           <TableHeader>
             <TableRow>
-              <SortableHead label="Path" sortKey="path" active={sortKey} dir={sortDir} onClick={toggleSort} />
-              <SortableHead label="Lang" sortKey="language" active={sortKey} dir={sortDir} onClick={toggleSort} />
-              <TableHead className="text-center">Test</TableHead>
-              <SortableHead label="Code" sortKey="code" active={sortKey} dir={sortDir} onClick={toggleSort} align="right" />
-              <TableHead className="text-right">Comment</TableHead>
-              <TableHead className="text-right">Blank</TableHead>
-              <SortableHead label="Total" sortKey="total" active={sortKey} dir={sortDir} onClick={toggleSort} align="right" />
+              <SortableHead label={t('fileTable.path')} sortKey="path" active={sortKey} dir={sortDir} onClick={toggleSort} />
+              <SortableHead label={t('fileTable.lang')} sortKey="language" active={sortKey} dir={sortDir} onClick={toggleSort} />
+              <TableHead className="text-center">{t('fileTable.test')}</TableHead>
+              <SortableHead label={t('fileTable.code')} sortKey="code" active={sortKey} dir={sortDir} onClick={toggleSort} align="right" />
+              <TableHead className="text-right">{t('fileTable.comment')}</TableHead>
+              <TableHead className="text-right">{t('fileTable.blank')}</TableHead>
+              <SortableHead label={t('fileTable.total')} sortKey="total" active={sortKey} dir={sortDir} onClick={toggleSort} align="right" />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -210,16 +209,16 @@ export function FileTable({ report }: Props) {
                     </Badge>
                   )}
                 </TableCell>
-                <TableCell className="text-right tabular-nums">{fmt(f.count.code)}</TableCell>
-                <TableCell className="text-right tabular-nums">{fmt(f.count.comment)}</TableCell>
-                <TableCell className="text-right tabular-nums">{fmt(f.count.blank)}</TableCell>
-                <TableCell className="text-right tabular-nums font-medium">{fmt(f.count.total)}</TableCell>
+                <TableCell className="text-right tabular-nums">{formatNumber(f.count.code)}</TableCell>
+                <TableCell className="text-right tabular-nums">{formatNumber(f.count.comment)}</TableCell>
+                <TableCell className="text-right tabular-nums">{formatNumber(f.count.blank)}</TableCell>
+                <TableCell className="text-right tabular-nums font-medium">{formatNumber(f.count.total)}</TableCell>
               </TableRow>
             ))}
             {slice.length === 0 && (
               <TableRow>
                 <TableCell colSpan={7} className="text-center text-sm text-muted-foreground">
-                  No files match the filters.
+                  {t('fileTable.noMatch')}
                 </TableCell>
               </TableRow>
             )}
@@ -229,24 +228,13 @@ export function FileTable({ report }: Props) {
 
       <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span>
-          {fmt(sorted.length)}
-          {' '}
-          file
-          {sorted.length === 1 ? '' : 's'}
-          {' '}
-          ·
-          {' '}
-          page
-          {' '}
-          {safePage + 1}
-          {' '}
-          /
-          {' '}
-          {pageCount}
+          {t('fileTable.fileCount', { count: sorted.length })}
+          {' · '}
+          {t('fileTable.pageOf', { page: safePage + 1, pages: pageCount })}
         </span>
         <div className="flex gap-1">
-          <Button variant="outline" size="sm" disabled={safePage === 0} onClick={() => setPage(p => Math.max(0, p - 1))}>Prev</Button>
-          <Button variant="outline" size="sm" disabled={safePage >= pageCount - 1} onClick={() => setPage(p => p + 1)}>Next</Button>
+          <Button variant="outline" size="sm" disabled={safePage === 0} onClick={() => setPage(p => Math.max(0, p - 1))}>{t('fileTable.prev')}</Button>
+          <Button variant="outline" size="sm" disabled={safePage >= pageCount - 1} onClick={() => setPage(p => p + 1)}>{t('fileTable.next')}</Button>
         </div>
       </div>
     </div>

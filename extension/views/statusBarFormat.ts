@@ -33,26 +33,40 @@ export interface ComputeInput {
   showLanguageIcon: boolean;
 }
 
+type LocalizerArg = string | number | boolean;
+type Localizer = (message: string, ...args: LocalizerArg[]) => string;
+
+function defaultLocalizer(message: string, ...args: LocalizerArg[]): string {
+  return message.replace(/\{(\d+)\}/g, (_, idx: string) => String(args[Number(idx)] ?? ''));
+}
+
 /**
  * Decide what the status bar should render given combined inputs. Returns
  * `{ hidden: true }` when nothing useful can be shown (no editor open or rule
  * unknown and no scan/error to surface).
+ *
+ * The optional `t` parameter is the i18n localizer; production code injects
+ * `vscode.l10n.t`, tests rely on the default `{0}`-template formatter so the
+ * pure module stays free of vscode imports.
  */
-export function computeStatusBar(input: ComputeInput): StatusBarRender {
+export function computeStatusBar(
+  input: ComputeInput,
+  t: Localizer = defaultLocalizer,
+): StatusBarRender {
   const { fileRule, fileCount, scanning, staleCount, errorMessage, format, showLanguageIcon } = input;
 
   // Error state takes precedence — user wants to know scans are broken.
   if (errorMessage) {
     return {
       hidden: false,
-      text: '$(error) Tally error',
+      text: `$(error) ${t('Tally error')}`,
       tooltipLines: [
-        'TallyCode scan error',
+        t('TallyCode scan error'),
         errorMessage,
         '',
-        'Click for actions',
+        t('Click for actions'),
       ],
-      accessibilityLabel: `TallyCode error: ${errorMessage}`,
+      accessibilityLabel: t('TallyCode error: {0}', errorMessage),
       background: 'error',
     };
   }
@@ -61,13 +75,13 @@ export function computeStatusBar(input: ComputeInput): StatusBarRender {
   if (scanning) {
     return {
       hidden: false,
-      text: '$(loading~spin) Counting…',
+      text: `$(loading~spin) ${t('Counting…')}`,
       tooltipLines: [
-        'TallyCode is scanning the workspace…',
+        t('TallyCode is scanning the workspace…'),
         '',
-        'Click for actions',
+        t('Click for actions'),
       ],
-      accessibilityLabel: 'TallyCode scanning workspace',
+      accessibilityLabel: t('TallyCode scanning workspace'),
       background: 'none',
     };
   }
@@ -77,13 +91,13 @@ export function computeStatusBar(input: ComputeInput): StatusBarRender {
     if (staleCount > 0) {
       return {
         hidden: false,
-        text: `$(warning) ${formatNum(staleCount)} stale`,
+        text: `$(warning) ${t('{0} stale', formatNum(staleCount))}`,
         tooltipLines: [
-          `TallyCode: ${staleCount} file(s) changed since last scan`,
+          t('TallyCode: {0} file(s) changed since last scan', staleCount),
           '',
-          'Click for actions',
+          t('Click for actions'),
         ],
-        accessibilityLabel: `TallyCode: ${staleCount} files stale`,
+        accessibilityLabel: t('TallyCode: {0} files stale', staleCount),
         background: 'warning',
       };
     }
@@ -96,42 +110,42 @@ export function computeStatusBar(input: ComputeInput): StatusBarRender {
     ? '$(warning)'
     : (showLanguageIcon ? `$(${iconFor(fileRule.id)})` : '$(list-ordered)');
 
-  const text = `${icon} ${renderMetric(fileCount, format)}`;
+  const text = `${icon} ${renderMetric(fileCount, format, t)}`;
   const tooltipLines = [
-    `TallyCode · ${langName}`,
-    `Code: ${formatNum(fileCount.code)}`,
-    `Comment: ${formatNum(fileCount.comment)}`,
-    `Blank: ${formatNum(fileCount.blank)}`,
-    `Total: ${formatNum(fileCount.total)}`,
+    t('TallyCode · {0}', langName),
+    t('Code: {0}', formatNum(fileCount.code)),
+    t('Comment: {0}', formatNum(fileCount.comment)),
+    t('Blank: {0}', formatNum(fileCount.blank)),
+    t('Total: {0}', formatNum(fileCount.total)),
   ];
   if (staleCount > 0) {
-    tooltipLines.push('', `${staleCount} file(s) changed since last workspace scan`);
+    tooltipLines.push('', t('{0} file(s) changed since last workspace scan', staleCount));
   }
-  tooltipLines.push('', 'Click for actions');
+  tooltipLines.push('', t('Click for actions'));
 
   return {
     hidden: false,
     text,
     tooltipLines,
-    accessibilityLabel: `TallyCode ${langName}: ${formatNum(fileCount.code)} lines of code`,
+    accessibilityLabel: t('TallyCode {0}: {1} lines of code', langName, formatNum(fileCount.code)),
     background: staleCount > 0 ? 'warning' : 'none',
   };
 }
 
-function renderMetric(c: CountResult, format: ComputeInput['format']): string {
+function renderMetric(c: CountResult, format: ComputeInput['format'], t: Localizer): string {
   switch (format) {
     case 'code+comment':
-      return `${formatNum(c.code)} code · ${formatNum(c.comment)} cmt`;
+      return t('{0} code · {1} cmt', formatNum(c.code), formatNum(c.comment));
     case 'percent': {
       if (c.total === 0)
         return '0%';
       const codePct = Math.round((c.code / c.total) * 100);
       const cmtPct = Math.round((c.comment / c.total) * 100);
-      return `${codePct}% code · ${cmtPct}% cmt`;
+      return t('{0}% code · {1}% cmt', codePct, cmtPct);
     }
     case 'loc':
     default:
-      return `${formatNum(c.code)} loc`;
+      return t('{0} loc', formatNum(c.code));
   }
 }
 

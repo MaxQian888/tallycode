@@ -1,4 +1,4 @@
-import { Uri, ViewColumn, window } from 'vscode';
+import { l10n, Uri, ViewColumn, window } from 'vscode';
 
 import { logger } from '../logger';
 
@@ -8,7 +8,6 @@ import type { ExtensionToWebviewMessage } from '@shared/messages';
 import type { Disposable, ExtensionContext, WebviewPanel } from 'vscode';
 
 const VIEW_TYPE = 'tallycode.dashboard';
-const TITLE = 'TallyCode Dashboard';
 
 export class MainPanel {
   static currentPanel: MainPanel | undefined;
@@ -31,7 +30,7 @@ export class MainPanel {
     }
     const dev = !!process.env.VITE_DEV_SERVER_URL;
     const distRoot = Uri.joinPath(context.extensionUri, 'dist');
-    const panel = window.createWebviewPanel(VIEW_TYPE, TITLE, ViewColumn.One, {
+    const panel = window.createWebviewPanel(VIEW_TYPE, l10n.t('TallyCode Dashboard'), ViewColumn.One, {
       enableScripts: true,
       retainContextWhenHidden: true,
       localResourceRoots: dev ? undefined : [distRoot],

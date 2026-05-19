@@ -1,3 +1,4 @@
+import i18n from 'i18next';
 import { useEffect, useState } from 'react';
 
 import { useVscodeMessage } from './useVscodeMessage';
@@ -97,6 +98,12 @@ export function useReport(): ReportState {
 
   useVscodeMessage('iconTheme/icons', (m) => {
     setState(s => ({ ...s, iconTheme: m.payload }));
+  });
+
+  useVscodeMessage('locale/set', (m) => {
+    const target = m.locale === 'zh-cn' ? 'zh-CN' : 'en';
+    if (i18n.language !== target)
+      void i18n.changeLanguage(target);
   });
 
   // Reset progress to null if we already have a report and no progress event
